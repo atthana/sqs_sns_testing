@@ -1,12 +1,15 @@
 import boto3
 import json
 import uuid
-
-# ใส่ ARN ของ SNS Topic ที่จดไว้
-SNS_TOPIC_ARN = 'arn:aws:sns:ap-southeast-7:154230581564:TestOrderCreatedTopic'
+import config
 
 def publish_order():
-    sns = boto3.client('sns', region_name='ap-southeast-7') # เปลี่ยน region ตามของคุณ
+    sns = boto3.client(
+        'sns',
+        region_name=config.AWS_REGION,
+        aws_access_key_id=config.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY,
+    )
     
     # จำลองข้อมูลออเดอร์
     order_data = {
@@ -18,7 +21,7 @@ def publish_order():
 
     # ส่งข้อความเข้า SNS
     response = sns.publish(
-        TopicArn=SNS_TOPIC_ARN,
+        TopicArn=config.SNS_TOPIC_ARN,
         Message=json.dumps(order_data),
         Subject="New Order Created by GR"
     )

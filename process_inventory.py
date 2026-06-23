@@ -1,19 +1,22 @@
 import boto3
 import json
 import time
-
-# ใส่ URL ของ SQS ที่จดไว้ (ไม่ใช่ ARN นะครับ)
-SQS_QUEUE_URL = 'https://sqs.ap-southeast-7.amazonaws.com/154230581564/TestInventoryQueue'
+import config
 
 def process_queue():
-    sqs = boto3.client('sqs', region_name='ap-southeast-7')
+    sqs = boto3.client(
+        'sqs',
+        region_name=config.AWS_REGION,
+        aws_access_key_id=config.AWS_ACCESS_KEY_ID,
+        aws_secret_access_key=config.AWS_SECRET_ACCESS_KEY,
+    )
     
     print("⏳ รอรับงานจาก Inventory Queue...")
     
     while True:
         # ดึงข้อความจากคิว (Long Polling รอ 10 วินาทีเพื่อประหยัดทรัพยากร)
         response = sqs.receive_message(
-            QueueUrl=SQS_QUEUE_URL,
+            QueueUrl=config.SQS_QUEUE_URL,
             MaxNumberOfMessages=1,
             WaitTimeSeconds=10 
         )
@@ -37,7 +40,7 @@ def process_queue():
 
             # ต้องลบข้อความออกจากคิวเมื่อทำงานเสร็จ ไม่งั้นข้อความจะเด้งกลับมาทำซ้ำ
             sqs.delete_message(
-                QueueUrl=SQS_QUEUE_URL,
+                QueueUrl=config.SQS_QUEUE_URL,
                 ReceiptHandle=message['ReceiptHandle']
             )
             print("🗑️ ลบข้อความออกจากคิวแล้ว")
