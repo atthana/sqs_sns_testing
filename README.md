@@ -12,6 +12,30 @@ publish_order.py       SNS Topic              SQS Queue                  Consume
      │                     │── fan out ──►  TestEmailQueue      ◄── (no consumer yet)
 ```
 
+
+```mermaid
+flowchart LR
+    PUB["publish_order.py\nPublisher"]
+    SNS["SNS Topic\nTestOrderCreatedTopic"]
+    INV["TestInventoryQueue\nSQS"]
+    EMAIL["TestEmailQueue\nSQS"]
+    CONS["process_inventory.py\nConsumer"]
+
+    PUB -->|"publish (ARN)"| SNS
+    SNS -->|"fan-out"| INV
+    SNS -->|"fan-out"| EMAIL
+    INV -->|"poll & delete (URL)"| CONS
+    EMAIL -.->|"no consumer yet"| CONS2["???"]
+
+    style SNS fill:#7C3F00,color:#fff
+    style INV fill:#0E2A52,color:#fff
+    style EMAIL fill:#0E2A52,color:#fff,stroke-dasharray:5 5
+    style CONS fill:#093826,color:#fff
+    style CONS2 fill:#1e1e1e,color:#555,stroke:#333
+```
+
+> For an animated interactive version, open [flow_diagram.html](flow_diagram.html) in a browser.
+
 ## Files
 
 | File | Description |
